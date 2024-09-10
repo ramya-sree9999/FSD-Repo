@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavaScript Assignment</title>
+  <style>
+    .trail {
+      position: absolute;
+      height: 6px;
+      width: 6px;
+      border-radius: 3px;
+      background: teal;
+    }
+    body {
+      height: 300px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Task 1: Table will be inserted here -->
+  <h1>Mountains</h1>
+  <div id="mountains"></div>
+
+  <!-- Task 2: Elements by tag name -->
+  <h1>Heading with a <span>span</span> element.</h1>
+  <p>A paragraph with <span>one</span>, <span>two</span> spans.</p>
+
+  <!-- Task 4: Tabs -->
+  <tab-panel>
+    <div data-tabname="one">Tab one content</div>
+    <div data-tabname="two">Tab two content</div>
+    <div data-tabname="three">Tab three content</div>
+  </tab-panel>
+
+  <script>
+    // Q1: Build a Table
+    const MOUNTAINS = [
+      {name: "Kilimanjaro", height: 5895, place: "Tanzania"},
+      {name: "Everest", height: 8848, place: "Nepal"},
+      {name: "Mount Fuji", height: 3776, place: "Japan"},
+      {name: "Vaalserberg", height: 323, place: "Netherlands"},
+      {name: "Denali", height: 6168, place: "United States"},
+      {name: "Popocatepetl", height: 5465, place: "Mexico"},
+      {name: "Mont Blanc", height: 4808, place: "Italy/France"}
+    ];
+
+    function buildTable(data) {
+      const table = document.createElement("table");
+
+      // Create table header from keys of the first object
+      const headerRow = document.createElement("tr");
+      Object.keys(data[0]).forEach(key => {
+        const header = document.createElement("th");
+        header.textContent = key;
+        headerRow.appendChild(header);
+      });
+      table.appendChild(headerRow);
+
+      // Create rows for each object in data
+      data.forEach(mountain => {
+        const row = document.createElement("tr");
+        Object.values(mountain).forEach(value => {
+          const cell = document.createElement("td");
+          cell.textContent = value;
+          if (typeof value === "number") {
+            cell.style.textAlign = "right"; // Right-align numeric values
+          }
+          row.appendChild(cell);
+        });
+        table.appendChild(row);
+      });
+
+      return table;
+    }
+
+    document.getElementById("mountains").appendChild(buildTable(MOUNTAINS));
+
+    // Q2: Elements by Tag Name
+    function byTagName(node, tagName) {
+      let elements = [];
+      tagName = tagName.toUpperCase(); // Ensure we match uppercase tag names
+
+      function findElements(currentNode) {
+        if (currentNode.nodeName === tagName) {
+          elements.push(currentNode);
+        }
+        for (let child of currentNode.childNodes) {
+          if (child.nodeType === document.ELEMENT_NODE) {
+            findElements(child);
+          }
+        }
+      }
+
+      findElements(node);
+      return elements;
+    }
+
+    console.log(byTagName(document.body, "h1").length); // → 1
+    console.log(byTagName(document.body, "span").length); // → 3
+    let para = document.querySelector("p");
+    console.log(byTagName(para, "span").length); // → 2
+
+    // Q3: Mouse Trail
+    const trailElements = [];
+    const trailLength = 10;
+
+    // Create trail elements
+    for (let i = 0; i < trailLength; i++) {
+      let trail = document.createElement("div");
+      trail.className = "trail";
+      document.body.appendChild(trail);
+      trailElements.push(trail);
+    }
+
+    let currentIndex = 0;
+
+    document.addEventListener("mousemove", event => {
+      let trail = trailElements[currentIndex];
+      trail.style.left = event.pageX + "px";
+      trail.style.top = event.pageY + "px";
+      currentIndex = (currentIndex + 1) % trailLength;
+    });
+
+    // Q4: Tabs
+    function asTabs(node) {
+      const tabs = Array.from(node.children);
+      const tabList = document.createElement("div");
+      tabs.forEach(tab => tab.style.display = "none");
+
+      tabs.forEach((tab, i) => {
+        const button = document.createElement("button");
+        button.textContent = tab.getAttribute("data-tabname");
+        button.addEventListener("click", () => {
+          tabs.forEach(t => t.style.display = "none");
+          tabs[i].style.display = "";
+          tabList.querySelectorAll("button").forEach(b => b.style.fontWeight = "normal");
+          button.style.fontWeight = "bold";
+        });
+        tabList.appendChild(button);
+      });
+
+      node.insertBefore(tabList, node.firstChild);
+      tabs[0].style.display = ""; // Show the first tab by default
+      tabList.firstChild.style.fontWeight = "bold"; // Bold the first tab button
+    }
+
+    asTabs(document.querySelector("tab-panel"));
+  </script>
+
+</body>
+</html>
